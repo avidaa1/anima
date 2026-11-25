@@ -12,9 +12,6 @@
 html,body{width:100%;height:100%;overflow:hidden;background:#0a0c10;font-family:sans-serif}
 #stage{position:fixed;inset:0}
 #pc{position:absolute;top:0;left:0;width:100%;height:100%;cursor:none}
-#ask-row{position:fixed;bottom:36px;left:10px;right:10px;display:flex;gap:6px;max-width:420px;z-index:5}
-#ask-input{flex:1;background:#1a1d22;color:#dde3ea;border:1px solid #3a4048;border-radius:6px;padding:8px 10px;font-size:13px}
-#ask-send{background:#4a5560;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer}
 #status-msg{position:fixed;bottom:70px;left:10px;right:10px;max-width:420px;color:#c8d0d8;font-size:12px;min-height:16px;opacity:0;transition:opacity .3s}
 #info-toggle{position:fixed;bottom:10px;left:10px;background:#232830;color:#c8d0d8;border:1px solid #3a4048;border-radius:14px;width:26px;height:26px;font-size:13px;font-weight:700;cursor:pointer;z-index:6}
 #info-toggle:hover{background:#2e3540}
@@ -102,10 +99,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0c10;font-family:
 <body>
 <div id="stage"><canvas id="pc"></canvas></div>
 <div id="status-msg"></div>
-<div id="ask-row">
-  <input id="ask-input" type="text" placeholder="Ask something..." />
-  <button id="ask-send">Ask</button>
-</div>
 <div id="integrity">STRUCTURAL INTEGRITY: 100%</div>
 <div id="zoom-row">
   <button class="zoom-btn" id="zoom-out" title="Zoom out">-</button>
@@ -148,8 +141,6 @@ var cv=document.getElementById('pc');
 var ctx=cv.getContext('2d');
 var statusEl=document.getElementById('status-msg');
 var integrityEl=document.getElementById('integrity');
-var askInput=document.getElementById('ask-input');
-var askSend=document.getElementById('ask-send');
 function resize(){
   cv.width=innerWidth; cv.height=innerHeight;
 }
@@ -2173,29 +2164,6 @@ function showStatus(text){
   showStatus._t=setTimeout(function(){statusEl.style.opacity='0';},3200);
 }
 
-var KB=[
-  {keys:['avidaa','what','universe'], a:'AVIDAA is a universe of single-file projects, built for the joy of creating.'},
-  {keys:['rabbit','hole','down'], a:'The rabbit hole runs deep - tiered, encrypted, and worth digging for.'},
-  {keys:['io','who','creator','built'], a:'IO built all of this - every repo, solo.'},
-  {keys:['hello','hi','hey'], a:'Hello. I am listening.'}
-];
-function normalize(s){ return s.toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(Boolean); }
-function jaccard(a,b){
-  var setA=new Set(a), setB=new Set(b);
-  var inter=0; setA.forEach(function(w){ if(setB.has(w)) inter++; });
-  var union=new Set(a.concat(b)).size;
-  return union===0?0:inter/union;
-}
-function askBrain(text){
-  var tokens=normalize(text);
-  var best=null,bestScore=0;
-  KB.forEach(function(node){
-    var score=jaccard(tokens,node.keys);
-    if(score>bestScore){ bestScore=score; best=node; }
-  });
-  if(best && bestScore>0.08) return best.a;
-  return 'Not sure about that one yet.';
-}
 function askBrainReact(kind){
   poke(ORIGIN.x, ORIGIN.y);
   if(ANIM!=='dance' && ANIM!=='jump' && ANIM!=='crouch' && ANIM!=='moonwalk') playAnim('wave',1.6);
@@ -2210,29 +2178,6 @@ function pickIconForReply(text){
   if(s.indexOf('universe')>=0 || s.indexOf('avidaa')>=0) return 'universe';
   return 'idea';
 }
-function doAsk(){
-  if(!askInput) return;
-  var text=askInput.value.trim();
-  if(!text) return;
-  poke(ORIGIN.x, ORIGIN.y);
-  var lower=text.toLowerCase();
-  if(lower.indexOf('glitch')>=0 && lower.indexOf('matrix')>=0){
-    triggerMatrixMode();
-    askInput.value='';
-    return;
-  }
-  var reply=askBrain(text);
-  var speakDuration=Math.min(5, 0.8+reply.length*0.04);
-  setTimeout(function(){
-    showStatus(reply);
-    conjureIcon(pickIconForReply(reply),Math.min(3,speakDuration));
-    talking=true; talkT=0;
-    setTimeout(function(){ talking=false; }, speakDuration*1000);
-  }, 300);
-  askInput.value='';
-}
-if(askSend) askSend.addEventListener('click',doAsk);
-if(askInput) askInput.addEventListener('keydown',function(e){ if(e.key==='Enter') doAsk(); });
 
 document.querySelectorAll('.emote-btn').forEach(function(b){
   b.addEventListener('click',function(){
@@ -2284,7 +2229,7 @@ if(document.readyState==='complete')start();else addEventListener('load',start);
 addEventListener('resize',sched);})();</script><script id="av-shell-20261124">/* AVIDAA shell: shared header (or floating pill) + footer with the "Last updated" stamp. No outside calls, no tracking.
    Template tokens are replaced when a page is built: Anima --av-music Music and Art 2026-11-24 06:36 */
 (function(){
-  var NAME='Anima',SECTOR='--av-music',STAMP='2026-11-25 14:45',HOME='https://avidaa1.github.io/';
+  var NAME='Anima',SECTOR='--av-music',STAMP='2026-11-25 15:20',HOME='https://avidaa1.github.io/';
   var ARROW='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function build(){
     if(!document.body||document.querySelector('.av-footer'))return;
